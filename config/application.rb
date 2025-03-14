@@ -25,3 +25,20 @@ module RageBlog
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end
+
+require "rage/rails"
+
+Rails.configuration.after_initialize do
+  Rage.configure do
+    config.server.workers_count = 1
+
+    config.middleware.use Rage::Cors do
+      allow "localhost:5173", "https://clumsy-squirrel-4315.pages.dev"
+    end
+
+    config.middleware.use ActionDispatch::HostAuthorization
+    if Rails.env.development?
+      config.middleware.use ActiveRecord::Migration::CheckPending
+    end
+  end
+end
